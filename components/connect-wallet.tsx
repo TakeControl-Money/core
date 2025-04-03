@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { ConnectAndSIWE } from "@/components/connect-and-siwe"
-import { useAccount } from "wagmi"
+import { ConnectAndSIWE } from "@/components/connect-and-siwe";
+import { useAccount, useDisconnect } from "wagmi";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,17 +9,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { LogOut } from "lucide-react";
 
 export function ConnectWallet() {
-  const { isConnected, address } = useAccount()
+  const { isConnected, address } = useAccount();
+  const { disconnect } = useDisconnect();
 
   const shortenAddress = (address: string | undefined) => {
-    if (!address) return ""
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
+    if (!address) return "";
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   return (
     <>
@@ -34,12 +36,16 @@ export function ConnectWallet() {
             <DropdownMenuItem asChild>
               <Link href="/dashboard">Dashboard</Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => disconnect()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Logout</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
         <ConnectAndSIWE />
       )}
     </>
-  )
+  );
 }
-
