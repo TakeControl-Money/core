@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectWallet } from "@/components/connect-wallet";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 export default function Header() {
@@ -42,6 +43,7 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <ConnectWallet />
         </div>
       </div>
