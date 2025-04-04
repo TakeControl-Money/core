@@ -31,7 +31,15 @@ export function ConnectWallet() {
             <Button variant="outline">{shortenAddress(address)}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Smart Wallet</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <a
+                href="https://wallet.coinbase.com/assets"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Smart Wallet
+              </a>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/dashboard">Dashboard</Link>
