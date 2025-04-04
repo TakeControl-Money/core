@@ -91,7 +91,9 @@ contract Fund is Ownable {
     }
 
     // calculate value of a single token in the fund
-    function getTokenPrice(address tokenAddress) public view returns (uint256) {
+    function getTokenPrice(
+        address tokenAddress
+    ) public view returns (uint256 price) {
         // check if token is supported
         require(tokenIdByAddress[tokenAddress] != 0, "Token not supported");
 
@@ -109,30 +111,29 @@ contract Fund is Ownable {
         // Determine the order of tokens in the pair
         address token0 = pair.token0();
 
-        uint256 price;
         if (token0 == tokenAddress) {
             if (decimals >= usdcDecimals) {
                 uint256 decimalsDiff = 10 ** (decimals - usdcDecimals);
                 price =
-                    (uint256(reserve1) * PRECISION) /
-                    (uint256(reserve0) * decimalsDiff);
+                    (uint256(reserve1) * PRECISION * decimalsDiff) /
+                    (uint256(reserve0));
             } else {
                 uint256 decimalsDiff = 10 ** (usdcDecimals - decimals);
                 price =
-                    (uint256(reserve1) * PRECISION * decimalsDiff) /
-                    uint256(reserve0);
+                    (uint256(reserve1) * PRECISION) /
+                    (uint256(reserve0) * decimalsDiff);
             }
         } else {
             if (decimals >= usdcDecimals) {
                 uint256 decimalsDiff = 10 ** (decimals - usdcDecimals);
                 price =
-                    (uint256(reserve0) * PRECISION) /
-                    (uint256(reserve1) * decimalsDiff);
+                    (uint256(reserve0) * PRECISION * decimalsDiff) /
+                    (uint256(reserve1));
             } else {
                 uint256 decimalsDiff = 10 ** (usdcDecimals - decimals);
                 price =
-                    (uint256(reserve0) * PRECISION * decimalsDiff) /
-                    uint256(reserve1);
+                    (uint256(reserve0) * PRECISION) /
+                    (uint256(reserve1) * decimalsDiff);
             }
         }
 
