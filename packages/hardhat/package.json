@@ -1,5 +1,5 @@
 {
-  "name": "hardhat-project",
+  "name": "@takecontrol-money/hardhat",
   "scripts": {
     "generate-abi:fund": "hardhat generate-abi --contract Fund.sol --abipath ../website/abi",
     "generate-abi:orcastrator": "hardhat generate-abi --contract Orcastrator.sol --abipath ../website/abi",
