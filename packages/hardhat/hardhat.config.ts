@@ -2,6 +2,7 @@ import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
 import "dotenv/config";
 import { z } from "zod";
+import "./tasks";
 
 const envSchema = z.object({
   ALCHEMY_API_KEY: z.string(),
