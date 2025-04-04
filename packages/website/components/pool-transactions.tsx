@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Transaction = {
-  id: string
-  type: "swap" | "lend" | "stake" | "withdraw" | "deposit"
-  description: string
-  amount: number
-  timestamp: string
-}
+  id: string;
+  type: "swap" | "lend" | "stake" | "withdraw" | "deposit";
+  description: string;
+  amount: number;
+  timestamp: string;
+};
 
 export function PoolTransactions({ id }: { id: string }) {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [loading, setLoading] = useState(true)
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Mock data - would be replaced with API call
@@ -56,41 +56,41 @@ export function PoolTransactions({ id }: { id: string }) {
           amount: 5000,
           timestamp: "2023-11-15T13:10:00Z",
         },
-      ])
-      setLoading(false)
-    }, 600)
-  }, [id])
+      ]);
+      setLoading(false);
+    }, 600);
+  }, []);
 
   const getTransactionBadge = (type: Transaction["type"]) => {
     switch (type) {
       case "swap":
-        return <Badge variant="outline">Swap</Badge>
+        return <Badge variant="outline">Swap</Badge>;
       case "lend":
         return (
           <Badge variant="outline" className="bg-blue-500/10 text-blue-500">
             Lend
           </Badge>
-        )
+        );
       case "stake":
         return (
           <Badge variant="outline" className="bg-purple-500/10 text-purple-500">
             Stake
           </Badge>
-        )
+        );
       case "deposit":
         return (
           <Badge variant="outline" className="bg-green-500/10 text-green-500">
             Deposit
           </Badge>
-        )
+        );
       case "withdraw":
         return (
           <Badge variant="outline" className="bg-orange-500/10 text-orange-500">
             Withdraw
           </Badge>
-        )
+        );
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -101,7 +101,10 @@ export function PoolTransactions({ id }: { id: string }) {
         <CardContent>
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between border-b pb-4">
+              <div
+                key={i}
+                className="flex items-center justify-between border-b pb-4"
+              >
                 <Skeleton className="h-6 w-2/3" />
                 <Skeleton className="h-6 w-1/4" />
               </div>
@@ -109,7 +112,7 @@ export function PoolTransactions({ id }: { id: string }) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -120,23 +123,33 @@ export function PoolTransactions({ id }: { id: string }) {
       <CardContent>
         <div className="space-y-4">
           {transactions.map((tx) => (
-            <div key={tx.id} className="flex items-center justify-between border-b pb-4 last:border-0">
+            <div
+              key={tx.id}
+              className="flex items-center justify-between border-b pb-4 last:border-0"
+            >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   {getTransactionBadge(tx.type)}
                   <p className="font-medium">{tx.description}</p>
                 </div>
-                <p className="text-sm text-muted-foreground">{new Date(tx.timestamp).toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">
+                  {new Date(tx.timestamp).toLocaleString()}
+                </p>
               </div>
               <p className="font-medium">
-                {tx.type === "deposit" ? "+" : tx.type === "withdraw" ? "-" : ""}
-                {tx.type === "stake" ? `${tx.amount} ETH` : `$${tx.amount.toLocaleString()}`}
+                {tx.type === "deposit"
+                  ? "+"
+                  : tx.type === "withdraw"
+                  ? "-"
+                  : ""}
+                {tx.type === "stake"
+                  ? `${tx.amount} ETH`
+                  : `$${tx.amount.toLocaleString()}`}
               </p>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
