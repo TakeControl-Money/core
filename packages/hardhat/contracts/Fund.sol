@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {IERC20WithDecimals, IERC20} from "./interfaces/IERC20WithDecimals.sol";
 import {IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/IUniswap.sol";
@@ -31,8 +31,9 @@ contract Fund is Ownable {
         string memory _name,
         string memory _symbol,
         address _usdcAddress,
-        address _uniswapFactoryAddress
-    ) Ownable(msg.sender) {
+        address _uniswapFactoryAddress,
+        address _owner
+    ) Ownable(_owner) {
         USDCAddress = _usdcAddress;
         uniswapFactory = IUniswapV2Factory(_uniswapFactoryAddress);
 

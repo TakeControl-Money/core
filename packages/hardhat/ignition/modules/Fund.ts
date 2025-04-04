@@ -19,11 +19,14 @@ const FundModule = buildModule("FundModule", (m) => {
     "0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6"
   );
 
+  const owner = m.getAccount(0);
+
   const fund = m.contract("Fund", [
     name,
     symbol,
     usdcAddress,
     uniswapFactoryAddress,
+    owner,
   ]);
 
   return { fund };
