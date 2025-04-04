@@ -1,7 +1,9 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "generate-abi": "hardhat generate-abi --contract Fund.sol --abipath ../website/abi"
+    "generate-abi:fund": "hardhat generate-abi --contract Fund.sol --abipath ../website/abi",
+    "generate-abi:orcastrator": "hardhat generate-abi --contract Orcastrator.sol --abipath ../website/abi",
+    "generate-abi": "npm run generate-abi:fund && npm run generate-abi:orcastrator"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
