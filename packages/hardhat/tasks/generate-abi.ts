@@ -31,9 +31,14 @@ task("generate-abi", "Generate ABI file for a contract")
       fs.mkdirSync(abiDir);
     }
 
-    // Write the ABI to a file
-    const abiPath = path.join(abiDir, `${contractName}.json`);
-    fs.writeFileSync(abiPath, JSON.stringify(artifact.abi, null, 2));
+    // Write the ABI to a TypeScript file with default export
+    const abiPath = path.join(abiDir, `${contractName}.ts`);
+    const fileContent = `const abi = ${JSON.stringify(
+      artifact.abi,
+      null,
+      2
+    )} as const;\n\nexport default abi;\n`;
+    fs.writeFileSync(abiPath, fileContent);
 
     console.log(`ABI file generated at ${abiPath}`);
   });
