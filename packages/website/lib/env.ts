@@ -13,7 +13,6 @@ import { z } from "zod";
 
 // Schema for public environment variables (available on client and server)
 const publicEnvSchema = z.object({
-  NEXT_PUBLIC_ORCASTRATOR_ADDRESS: z.string(),
   NEXT_PUBLIC_PAYMASTER_AND_BUNDLER_ENDPOINT: z.string(),
 });
 
@@ -33,8 +32,6 @@ export type ValidatedEnv = PublicEnv & ServerEnv;
  */
 export function validatePublicEnv(): PublicEnv {
   const env = {
-    NEXT_PUBLIC_ORCASTRATOR_ADDRESS:
-      process.env.NEXT_PUBLIC_ORCASTRATOR_ADDRESS,
     NEXT_PUBLIC_PAYMASTER_AND_BUNDLER_ENDPOINT:
       process.env.NEXT_PUBLIC_PAYMASTER_AND_BUNDLER_ENDPOINT,
   };

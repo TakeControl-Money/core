@@ -25,12 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useWeb3 } from "@/hooks/use-web3";
 import { Loader2 } from "lucide-react";
-import OrcastratorABI from "@/abi/Orcastrator";
-import { validatePublicEnv } from "@/lib/env";
-
-const { NEXT_PUBLIC_ORCASTRATOR_ADDRESS } = validatePublicEnv();
-
-console.log(NEXT_PUBLIC_ORCASTRATOR_ADDRESS);
+import Orcastrator from "@/abi/Orcastrator";
 
 export function CreatePoolForm() {
   const router = useRouter();
@@ -89,8 +84,8 @@ export function CreatePoolForm() {
       const hash = await writeContract({
         contracts: [
           {
-            address: NEXT_PUBLIC_ORCASTRATOR_ADDRESS as `0x${string}`,
-            abi: OrcastratorABI,
+            address: Orcastrator.deploymentInfo.address,
+            abi: Orcastrator.abi,
             functionName: "createFund",
             args: [
               formData.name,
