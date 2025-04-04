@@ -25,53 +25,12 @@ const contractInfo = {
         },
         {
           "internalType": "address",
-          "name": "_owner",
+          "name": "_orcastratorAddress",
           "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableInvalidOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableUnauthorizedAccount",
-      "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
     },
     {
       "inputs": [],
@@ -128,13 +87,24 @@ const contractInfo = {
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
         }
       ],
       "name": "depositUSDC",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "shareAmount",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -159,22 +129,15 @@ const contractInfo = {
     },
     {
       "inputs": [],
-      "name": "owner",
+      "name": "orcastrator",
       "outputs": [
         {
-          "internalType": "address",
+          "internalType": "contract IOrcastrator",
           "name": "",
           "type": "address"
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -209,7 +172,13 @@ const contractInfo = {
         }
       ],
       "name": "swap",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -280,19 +249,6 @@ const contractInfo = {
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "uniswapFactory",
       "outputs": [
@@ -308,13 +264,24 @@ const contractInfo = {
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
           "name": "shareAmount",
           "type": "uint256"
         }
       ],
       "name": "withdrawTokens",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "withdrawalAmount",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     }

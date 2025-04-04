@@ -26,6 +26,7 @@ import {
 import { useWeb3 } from "@/hooks/use-web3";
 import { Loader2 } from "lucide-react";
 import Orcastrator from "@/abi/Orcastrator";
+import type { ContractFunctionParameters } from "viem";
 
 export function CreatePoolForm() {
   const router = useRouter();
@@ -90,11 +91,13 @@ export function CreatePoolForm() {
             args: [
               formData.name,
               formData.name,
-              /* formData.description,
-              managerTypeValue,
-              BigInt(commissionBasisPoints), */
+              JSON.stringify({
+                description: formData.description,
+                managerType: managerTypeValue,
+                commissionBasisPoints,
+              }),
             ],
-          },
+          } as ContractFunctionParameters<typeof Orcastrator.abi>,
         ],
         capabilities,
       });
