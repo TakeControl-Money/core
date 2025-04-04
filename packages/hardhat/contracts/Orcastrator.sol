@@ -50,6 +50,7 @@ contract Orcastrator is IOrcastrator {
         emit FundCreated(
             fundId,
             fundAddress,
+            msg.sender,
             _name,
             _symbol,
             _detailsJson,

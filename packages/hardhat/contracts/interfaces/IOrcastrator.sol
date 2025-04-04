@@ -5,6 +5,7 @@ interface IOrcastrator {
     event FundCreated(
         uint256 indexed fundId,
         address indexed fundAddress,
+        address indexed owner,
         string name,
         string symbol,
         string detailsJson,

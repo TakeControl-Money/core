@@ -107,6 +107,12 @@ const contractInfo = {
           "type": "address"
         },
         {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
           "indexed": false,
           "internalType": "string",
           "name": "name",
@@ -431,8 +437,8 @@ const contractInfo = {
     }
   ],
   "deploymentInfo": {
-    "address": "0x9f59F7e962e7a898aD208c35671aa912660BaF9F",
-    "blockNumber": 28505641
+    "address": "0x319b5062D5836782201DaBe33C9c3EEfd9596c4f",
+    "blockNumber": 28508111
   }
 } as const;
 
