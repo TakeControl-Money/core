@@ -1,6 +1,17 @@
 const abi = [
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_usdcAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_uniswapFactoryAddress",
+        "type": "address"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -15,16 +26,6 @@ const abi = [
         "internalType": "string",
         "name": "_symbol",
         "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "_usdcAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_uniswapFactoryAddress",
-        "type": "address"
       }
     ],
     "name": "createFund",
@@ -65,6 +66,32 @@ const abi = [
       }
     ],
     "name": "funds",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "uniswapFactoryAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdcAddress",
     "outputs": [
       {
         "internalType": "address",

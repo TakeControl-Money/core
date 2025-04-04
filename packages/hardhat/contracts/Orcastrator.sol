@@ -8,19 +8,23 @@ contract Orcastrator {
 
     mapping(uint256 => address) public funds;
 
-    constructor() {}
+    address public usdcAddress;
+    address public uniswapFactoryAddress;
+
+    constructor(address _usdcAddress, address _uniswapFactoryAddress) {
+        usdcAddress = _usdcAddress;
+        uniswapFactoryAddress = _uniswapFactoryAddress;
+    }
 
     function createFund(
         string memory _name,
-        string memory _symbol,
-        address _usdcAddress,
-        address _uniswapFactoryAddress
+        string memory _symbol
     ) public returns (uint256 fundId, address fundAddress) {
         Fund fund = new Fund(
             _name,
             _symbol,
-            _usdcAddress,
-            _uniswapFactoryAddress,
+            usdcAddress,
+            uniswapFactoryAddress,
             msg.sender
         );
 
