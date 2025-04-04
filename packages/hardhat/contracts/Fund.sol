@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
 import {IERC20WithDecimals, IERC20} from "./interfaces/IERC20WithDecimals.sol";
 import {IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/IUniswap.sol";
+import {IOrcastrator} from "./interfaces/IOrcastrator.sol";
 
 import "./ShareToken.sol";
 
-contract Fund is Ownable {
+contract Fund {
     struct Token {
         uint256 tokenId;
         address tokenAddress;
@@ -26,14 +25,23 @@ contract Fund is Ownable {
     address public USDCAddress;
     IUniswapV2Factory public uniswapFactory;
     ShareToken public shareToken;
+    IOrcastrator public orcastrator;
+
+    modifier onlyOrcastrator() {
+        require(
+            msg.sender == address(orcastrator),
+            "Only orcastrator can call this function"
+        );
+        _;
+    }
 
     constructor(
         string memory _name,
         string memory _symbol,
         address _usdcAddress,
         address _uniswapFactoryAddress,
-        address _owner
-    ) Ownable(_owner) {
+        address _orcastratorAddress
+    ) {
         USDCAddress = _usdcAddress;
         uniswapFactory = IUniswapV2Factory(_uniswapFactoryAddress);
 
@@ -41,31 +49,45 @@ contract Fund is Ownable {
 
         // deploy share token
         shareToken = new ShareToken(_name, _symbol);
+        orcastrator = IOrcastrator(_orcastratorAddress);
     }
 
     // Deposit USDC into the fund
-    function depositUSDC(uint256 amount) public {
+    function depositUSDC(
+        address user,
+        uint256 amount
+    ) public onlyOrcastrator returns (uint256 shareAmount) {
         // transfer USDC from msg.sender to this contract
-        IERC20(USDCAddress).transferFrom(msg.sender, address(this), amount);
+        IERC20(USDCAddress).transferFrom(user, address(this), amount);
 
         uint256 currentTotalValue = calculateTotalValue();
         uint256 currentTotalShares = shareToken.totalSupply();
 
-        uint256 shareAmount = (amount * PRECISION * currentTotalShares) /
+        shareAmount =
+            (amount * PRECISION * currentTotalShares) /
             currentTotalValue;
 
-        shareToken.mint(msg.sender, shareAmount);
+        shareToken.mint(user, shareAmount);
 
         // update token balance
         tokensHeld[1].balance += amount;
     }
 
     // Withdraw token shares from the fund
-    function withdrawTokens(uint256 shareAmount) public {
+    function withdrawTokens(
+        address user,
+        uint256 shareAmount
+    ) public onlyOrcastrator returns (uint256 withdrawalAmount) {
         uint256 currentTotalShares = shareToken.totalSupply();
 
-        // burn share tokens from msg.sender
-        shareToken.burn(msg.sender, shareAmount);
+        // burn share tokens from user
+        shareToken.burn(user, shareAmount);
+
+        // calculate total value of the fund
+        uint256 currentTotalValue = calculateTotalValue();
+        withdrawalAmount =
+            (currentTotalValue * shareAmount) /
+            currentTotalShares;
 
         // loop through all tokens and calculate the amount of each token to withdraw
         for (uint256 i = 1; i <= totalTokenIds; i++) {
@@ -73,8 +95,8 @@ contract Fund is Ownable {
             uint256 tokenValue = (token.balance * shareAmount) /
                 currentTotalShares;
 
-            // transfer token to msg.sender
-            IERC20(token.tokenAddress).transfer(msg.sender, tokenValue);
+            // transfer token to user
+            IERC20(token.tokenAddress).transfer(user, tokenValue);
 
             // update token balance
             tokensHeld[i].balance -= tokenValue;
@@ -145,7 +167,7 @@ contract Fund is Ownable {
         address tokenOut,
         address tokenIn,
         uint256 amount
-    ) public onlyOwner {
+    ) public onlyOrcastrator returns (uint256 amountIn) {
         // check if both tokens are supported
         require(tokenIdByAddress[tokenOut] != 0, "Out token not supported");
         require(tokenIdByAddress[tokenIn] != 0, "In token not supported");
@@ -158,9 +180,11 @@ contract Fund is Ownable {
         require(tokenOutToken.balance >= amount, "Insufficient balance");
 
         // swap logic
+
+        amountIn = 0;
     }
 
-    function addSupportedToken(address tokenAddress) public onlyOwner {
+    function addSupportedToken(address tokenAddress) public onlyOrcastrator {
         // check if token is already supported
         require(tokenIdByAddress[tokenAddress] == 0, "Token already supported");
 

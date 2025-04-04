@@ -11,12 +11,9 @@ function parseJournalFile(
   journalPath: string,
   contractName: string
 ): DeploymentInfo | null {
-  console.log("journalPath", journalPath);
   if (!fs.existsSync(journalPath)) {
     return null;
   }
-
-  console.log("Here");
 
   const journalContent = fs.readFileSync(journalPath, "utf-8");
   const lines = journalContent.split("\n").filter((line) => line.trim());
