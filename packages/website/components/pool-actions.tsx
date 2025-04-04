@@ -1,15 +1,21 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useWeb3 } from "@/hooks/use-web3"
-import { Loader2 } from "lucide-react"
-import { parseEther } from "viem"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useWeb3 } from "@/hooks/use-web3";
+import { Loader2 } from "lucide-react";
+import { parseEther } from "viem";
 
 // Mock ABI for demonstration purposes
 const POOL_ABI = [
@@ -46,14 +52,14 @@ const POOL_ABI = [
     outputs: [],
     stateMutability: "nonpayable",
   },
-] as const
+] as const;
 
 // Mock token addresses
 const TOKEN_ADDRESSES: Record<string, `0x${string}`> = {
   usdc: "0x1234567890123456789012345678901234567890",
   eth: "0x2345678901234567890123456789012345678901",
   wbtc: "0x3456789012345678901234567890123456789012",
-}
+};
 
 // Mock protocol addresses
 const PROTOCOL_ADDRESSES: Record<string, `0x${string}`> = {
@@ -61,70 +67,85 @@ const PROTOCOL_ADDRESSES: Record<string, `0x${string}`> = {
   compound: "0x5678901234567890123456789012345678901234",
   lido: "0x6789012345678901234567890123456789012345",
   rocketpool: "0x7890123456789012345678901234567890123456",
-}
+};
 
 export function PoolActions({ id }: { id: string }) {
-  const { isConnected, connect, writeContract, isTransactionPending } = useWeb3()
-  const [amount, setAmount] = useState("")
-  const [selectedToken, setSelectedToken] = useState("")
-  const [selectedProtocol, setSelectedProtocol] = useState("")
-  const [txStatus, setTxStatus] = useState<"idle" | "success" | "error">("idle")
-  const [txError, setTxError] = useState<string | null>(null)
+  const {
+    isConnected,
+    connect,
+    writeContract,
+    isTransactionPending,
+    capabilities,
+  } = useWeb3();
+  const [amount, setAmount] = useState("");
+  const [selectedToken, setSelectedToken] = useState("");
+  const [selectedProtocol, setSelectedProtocol] = useState("");
+  const [txStatus, setTxStatus] = useState<"idle" | "success" | "error">(
+    "idle"
+  );
+  const [txError, setTxError] = useState<string | null>(null);
 
   // Mock pool contract address based on the pool ID
-  const poolContractAddress = `0x${id.replace("pool-", "")}${"0".repeat(40 - id.length)}` as `0x${string}`
+  const poolContractAddress = `0x${id.replace("pool-", "")}${"0".repeat(
+    40 - id.length
+  )}` as `0x${string}`;
 
   const handleSubmit = async (action: string) => {
     try {
-      setTxStatus("idle")
-      setTxError(null)
+      setTxStatus("idle");
+      setTxError(null);
 
-      if (!amount || !selectedToken || !selectedProtocol) return
+      if (!amount || !selectedToken || !selectedProtocol) return;
 
-      const amountInWei = parseEther(amount)
-      const tokenAddress = TOKEN_ADDRESSES[selectedToken]
-      const protocolAddress = PROTOCOL_ADDRESSES[selectedProtocol]
+      const amountInWei = parseEther(amount);
+      const tokenAddress = TOKEN_ADDRESSES[selectedToken];
+      const protocolAddress = PROTOCOL_ADDRESSES[selectedProtocol];
 
-      let functionName: string
-      let args: Array<bigint | `0x${string}`>
+      let functionName: string;
+      let args: Array<bigint | `0x${string}`>;
 
       switch (action) {
         case "swap":
-          functionName = "swap"
-          args = [amountInWei, tokenAddress, TOKEN_ADDRESSES[selectedProtocol]]
-          break
+          functionName = "swap";
+          args = [amountInWei, tokenAddress, TOKEN_ADDRESSES[selectedProtocol]];
+          break;
         case "lend":
-          functionName = "lend"
-          args = [amountInWei, tokenAddress, protocolAddress]
-          break
+          functionName = "lend";
+          args = [amountInWei, tokenAddress, protocolAddress];
+          break;
         case "stake":
-          functionName = "stake"
-          args = [amountInWei, tokenAddress, protocolAddress]
-          break
+          functionName = "stake";
+          args = [amountInWei, tokenAddress, protocolAddress];
+          break;
         default:
-          throw new Error("Invalid action")
+          throw new Error("Invalid action");
       }
 
       const hash = await writeContract({
-        address: poolContractAddress,
-        abi: POOL_ABI,
-        functionName,
-        args,
-      })
+        contracts: [
+          {
+            address: poolContractAddress,
+            abi: POOL_ABI,
+            functionName,
+            args,
+          },
+        ],
+        capabilities,
+      });
 
-      console.log(`Transaction hash: ${hash}`)
-      setTxStatus("success")
+      console.log(`Transaction hash: ${hash}`);
+      setTxStatus("success");
 
       // Reset form
-      setAmount("")
-      setSelectedToken("")
-      setSelectedProtocol("")
+      setAmount("");
+      setSelectedToken("");
+      setSelectedProtocol("");
     } catch (error) {
-      console.error(`Error in ${action}:`, error)
-      setTxStatus("error")
-      setTxError(error instanceof Error ? error.message : String(error))
+      console.error(`Error in ${action}:`, error);
+      setTxStatus("error");
+      setTxError(error instanceof Error ? error.message : String(error));
     }
-  }
+  };
 
   if (!isConnected) {
     return (
@@ -139,7 +160,7 @@ export function PoolActions({ id }: { id: string }) {
           <Button onClick={connect}>Connect Smart Wallet</Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -149,11 +170,15 @@ export function PoolActions({ id }: { id: string }) {
       </CardHeader>
       <CardContent>
         {txStatus === "success" && (
-          <div className="mb-4 rounded-md bg-green-500/10 p-4 text-green-500">Transaction successful!</div>
+          <div className="mb-4 rounded-md bg-green-500/10 p-4 text-green-500">
+            Transaction successful!
+          </div>
         )}
 
         {txStatus === "error" && (
-          <div className="mb-4 rounded-md bg-red-500/10 p-4 text-red-500">Transaction failed: {txError}</div>
+          <div className="mb-4 rounded-md bg-red-500/10 p-4 text-red-500">
+            Transaction failed: {txError}
+          </div>
         )}
 
         <Tabs defaultValue="swap">
@@ -177,7 +202,11 @@ export function PoolActions({ id }: { id: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="token-from">From Token</Label>
-              <Select value={selectedToken} onValueChange={setSelectedToken} disabled={isTransactionPending}>
+              <Select
+                value={selectedToken}
+                onValueChange={setSelectedToken}
+                disabled={isTransactionPending}
+              >
                 <SelectTrigger id="token-from">
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
@@ -190,7 +219,11 @@ export function PoolActions({ id }: { id: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="token-to">To Token</Label>
-              <Select value={selectedProtocol} onValueChange={setSelectedProtocol} disabled={isTransactionPending}>
+              <Select
+                value={selectedProtocol}
+                onValueChange={setSelectedProtocol}
+                disabled={isTransactionPending}
+              >
                 <SelectTrigger id="token-to">
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
@@ -204,7 +237,12 @@ export function PoolActions({ id }: { id: string }) {
             <Button
               className="w-full"
               onClick={() => handleSubmit("swap")}
-              disabled={!amount || !selectedToken || !selectedProtocol || isTransactionPending}
+              disabled={
+                !amount ||
+                !selectedToken ||
+                !selectedProtocol ||
+                isTransactionPending
+              }
             >
               {isTransactionPending ? (
                 <>
@@ -231,7 +269,11 @@ export function PoolActions({ id }: { id: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="lend-token">Token</Label>
-              <Select value={selectedToken} onValueChange={setSelectedToken} disabled={isTransactionPending}>
+              <Select
+                value={selectedToken}
+                onValueChange={setSelectedToken}
+                disabled={isTransactionPending}
+              >
                 <SelectTrigger id="lend-token">
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
@@ -244,7 +286,11 @@ export function PoolActions({ id }: { id: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="lend-protocol">Protocol</Label>
-              <Select value={selectedProtocol} onValueChange={setSelectedProtocol} disabled={isTransactionPending}>
+              <Select
+                value={selectedProtocol}
+                onValueChange={setSelectedProtocol}
+                disabled={isTransactionPending}
+              >
                 <SelectTrigger id="lend-protocol">
                   <SelectValue placeholder="Select protocol" />
                 </SelectTrigger>
@@ -257,7 +303,12 @@ export function PoolActions({ id }: { id: string }) {
             <Button
               className="w-full"
               onClick={() => handleSubmit("lend")}
-              disabled={!amount || !selectedToken || !selectedProtocol || isTransactionPending}
+              disabled={
+                !amount ||
+                !selectedToken ||
+                !selectedProtocol ||
+                isTransactionPending
+              }
             >
               {isTransactionPending ? (
                 <>
@@ -284,7 +335,11 @@ export function PoolActions({ id }: { id: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="stake-token">Token</Label>
-              <Select value={selectedToken} onValueChange={setSelectedToken} disabled={isTransactionPending}>
+              <Select
+                value={selectedToken}
+                onValueChange={setSelectedToken}
+                disabled={isTransactionPending}
+              >
                 <SelectTrigger id="stake-token">
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
@@ -296,7 +351,11 @@ export function PoolActions({ id }: { id: string }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="stake-protocol">Protocol</Label>
-              <Select value={selectedProtocol} onValueChange={setSelectedProtocol} disabled={isTransactionPending}>
+              <Select
+                value={selectedProtocol}
+                onValueChange={setSelectedProtocol}
+                disabled={isTransactionPending}
+              >
                 <SelectTrigger id="stake-protocol">
                   <SelectValue placeholder="Select protocol" />
                 </SelectTrigger>
@@ -309,7 +368,12 @@ export function PoolActions({ id }: { id: string }) {
             <Button
               className="w-full"
               onClick={() => handleSubmit("stake")}
-              disabled={!amount || !selectedToken || !selectedProtocol || isTransactionPending}
+              disabled={
+                !amount ||
+                !selectedToken ||
+                !selectedProtocol ||
+                isTransactionPending
+              }
             >
               {isTransactionPending ? (
                 <>
@@ -324,6 +388,5 @@ export function PoolActions({ id }: { id: string }) {
         </Tabs>
       </CardContent>
     </Card>
-  )
+  );
 }
-

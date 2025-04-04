@@ -26,11 +26,22 @@ import {
 import { useWeb3 } from "@/hooks/use-web3";
 import { Loader2 } from "lucide-react";
 import OrcastratorABI from "@/abi/Orcastrator";
+import { validatePublicEnv } from "@/lib/env";
+
+const { NEXT_PUBLIC_ORCASTRATOR_ADDRESS } = validatePublicEnv();
+
+console.log(NEXT_PUBLIC_ORCASTRATOR_ADDRESS);
 
 export function CreatePoolForm() {
   const router = useRouter();
-  const { isConnected, connect, writeContract, isTransactionPending } =
-    useWeb3();
+  const {
+    writeContract,
+    isConnected,
+    connect,
+    isTransactionPending,
+    capabilities,
+  } = useWeb3();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -65,10 +76,6 @@ export function CreatePoolForm() {
       setTxStatus("idle");
       setTxError(null);
 
-      // Mock pool factory contract address
-      const poolFactoryAddress =
-        "0x8901234567890123456789012345678901234567" as `0x${string}`;
-
       // Convert manager type to uint8
       let managerTypeValue = 0; // human
       if (formData.managerType === "contract") managerTypeValue = 1;
@@ -80,16 +87,21 @@ export function CreatePoolForm() {
       );
 
       const hash = await writeContract({
-        address: poolFactoryAddress,
-        abi: OrcastratorABI,
-        functionName: "createFund",
-        args: [
-          formData.name,
-          formData.name,
-          /* formData.description,
-          managerTypeValue,
-          BigInt(commissionBasisPoints), */
+        contracts: [
+          {
+            address: NEXT_PUBLIC_ORCASTRATOR_ADDRESS as `0x${string}`,
+            abi: OrcastratorABI,
+            functionName: "createFund",
+            args: [
+              formData.name,
+              formData.name,
+              /* formData.description,
+              managerTypeValue,
+              BigInt(commissionBasisPoints), */
+            ],
+          },
         ],
+        capabilities,
       });
 
       console.log(`Transaction hash: ${hash}`);
@@ -217,6 +229,38 @@ export function CreatePoolForm() {
           </div>
         </CardContent>
         <CardFooter>
+          {/*  <Transaction
+            calls={
+              [
+                {
+                  address: NEXT_PUBLIC_ORCASTRATOR_ADDRESS as `0x${string}`,
+                  abi: OrcastratorABI,
+                  functionName: "createFund",
+                  args: [
+                    formData.name,
+                    formData.name,
+                    formData.description,
+                  managerTypeValue,
+                  BigInt(commissionBasisPoints),
+                  ],
+                },
+              ] as ContractFunctionParameters[]
+            }
+            className="w-[450px]"
+            chainId={base.id}
+            onError={(e) => console.error(e)}
+            onSuccess={(a) => console.log("success", a)}
+          >
+            <TransactionButton
+              className="mt-0 mr-auto ml-auto w-[450px] max-w-full text-[white]"
+              text="Create Pool"
+            />
+            <TransactionStatus>
+              <TransactionStatusLabel />
+              <TransactionStatusAction />
+            </TransactionStatus>
+          </Transaction> */}
+
           <Button
             type="submit"
             className="w-full"
