@@ -37,7 +37,7 @@ contract Fund is Ownable {
         USDCAddress = _usdcAddress;
         uniswapFactory = IUniswapV2Factory(_uniswapFactoryAddress);
 
-        addSupportedToken(USDCAddress);
+        _addSupportedToken(USDCAddress);
 
         // deploy share token
         shareToken = new ShareToken(_name, _symbol);
@@ -164,6 +164,10 @@ contract Fund is Ownable {
         // check if token is already supported
         require(tokenIdByAddress[tokenAddress] == 0, "Token already supported");
 
+        _addSupportedToken(tokenAddress);
+    }
+
+    function _addSupportedToken(address tokenAddress) internal {
         uint256 tokenId = ++totalTokenIds;
         tokenIdByAddress[tokenAddress] = tokenId;
 
