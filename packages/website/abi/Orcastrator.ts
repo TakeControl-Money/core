@@ -437,8 +437,8 @@ const contractInfo = {
     }
   ],
   "deploymentInfo": {
-    "address": "0x319b5062D5836782201DaBe33C9c3EEfd9596c4f",
-    "blockNumber": 28508111
+    "address": "0x4304Be907dAd4918b9ae1D90e00933BDBf41aD40",
+    "blockNumber": 28522449
   }
 } as const;
 

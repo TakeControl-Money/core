@@ -60,12 +60,17 @@ contract Fund {
         // transfer USDC from msg.sender to this contract
         IERC20(USDCAddress).transferFrom(user, address(this), amount);
 
-        uint256 currentTotalValue = calculateTotalValue();
         uint256 currentTotalShares = shareToken.totalSupply();
 
-        shareAmount =
-            (amount * PRECISION * currentTotalShares) /
-            currentTotalValue;
+        if (currentTotalShares == 0) {
+            shareAmount = amount * PRECISION;
+        } else {
+            uint256 currentTotalValue = calculateTotalValue();
+
+            shareAmount =
+                (amount * PRECISION * currentTotalShares) /
+                (currentTotalValue * (10 ** tokensHeld[1].decimals));
+        }
 
         shareToken.mint(user, shareAmount);
 
@@ -106,7 +111,11 @@ contract Fund {
     // calculate total value of the fund
     function calculateTotalValue() public view returns (uint256) {
         uint256 totalValue = 0;
-        for (uint256 i = 1; i <= totalTokenIds; i++) {
+        Token memory usdcToken = tokensHeld[1];
+        totalValue +=
+            (usdcToken.balance * PRECISION) /
+            (10 ** usdcToken.decimals);
+        for (uint256 i = 2; i <= totalTokenIds; i++) {
             Token memory token = tokensHeld[i];
             totalValue += token.balance * getTokenPrice(token.tokenAddress);
         }
