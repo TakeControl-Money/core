@@ -40,6 +40,24 @@ const contractInfo = {
         },
         {
           "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "decimals",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
           "name": "timestamp",
           "type": "uint256"
@@ -437,8 +455,8 @@ const contractInfo = {
     }
   ],
   "deploymentInfo": {
-    "address": "0x4304Be907dAd4918b9ae1D90e00933BDBf41aD40",
-    "blockNumber": 28522449
+    "address": "0x9b8D79d6c08D8e3c0B6138F7B5E1690A24b0dE70",
+    "blockNumber": 28523031
   }
 } as const;
 

@@ -64,6 +64,11 @@ const contractInfo = {
           "internalType": "address",
           "name": "tokenAddress",
           "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "decimals",
+          "type": "uint8"
         }
       ],
       "name": "addSupportedToken",

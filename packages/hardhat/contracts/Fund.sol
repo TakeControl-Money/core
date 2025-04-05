@@ -45,8 +45,6 @@ contract Fund {
         USDCAddress = _usdcAddress;
         uniswapFactory = IUniswapV2Factory(_uniswapFactoryAddress);
 
-        _addSupportedToken(USDCAddress);
-
         // deploy share token
         shareToken = new ShareToken(_name, _symbol);
         orcastrator = IOrcastrator(_orcastratorAddress);
@@ -193,19 +191,15 @@ contract Fund {
         amountIn = 0;
     }
 
-    function addSupportedToken(address tokenAddress) public onlyOrcastrator {
+    function addSupportedToken(
+        address tokenAddress,
+        uint8 decimals
+    ) public onlyOrcastrator {
         // check if token is already supported
         require(tokenIdByAddress[tokenAddress] == 0, "Token already supported");
 
-        _addSupportedToken(tokenAddress);
-    }
-
-    function _addSupportedToken(address tokenAddress) internal {
         uint256 tokenId = ++totalTokenIds;
         tokenIdByAddress[tokenAddress] = tokenId;
-
-        // Get decimal places for both tokens
-        uint8 decimals = IERC20WithDecimals(tokenAddress).decimals();
 
         tokensHeld[tokenId] = Token({
             tokenId: tokenId,

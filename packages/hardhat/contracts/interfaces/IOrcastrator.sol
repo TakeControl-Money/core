@@ -40,6 +40,9 @@ interface IOrcastrator {
         uint256 indexed fundId,
         address indexed fundAddress,
         address indexed token,
+        string name,
+        string symbol,
+        uint8 decimals,
         uint256 timestamp
     );
 }

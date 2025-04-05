@@ -3,6 +3,7 @@ pragma solidity ^0.8.28;
 
 import {Fund} from "./Fund.sol";
 import {IOrcastrator} from "./interfaces/IOrcastrator.sol";
+import {IERC20WithDecimals} from "./interfaces/IERC20WithDecimals.sol";
 
 contract Orcastrator is IOrcastrator {
     struct FundObj {
@@ -56,6 +57,8 @@ contract Orcastrator is IOrcastrator {
             _detailsJson,
             block.timestamp
         );
+
+        _addSupportedToken(fundId, fund, usdcAddress);
     }
 
     function deposit(uint256 fundId, uint256 amount) public {
@@ -122,9 +125,30 @@ contract Orcastrator is IOrcastrator {
             "Only owner can call this function"
         );
 
-        fund.addSupportedToken(token);
+        _addSupportedToken(fundId, fund, token);
+    }
 
-        emit AddedSupportedToken(fundId, address(fund), token, block.timestamp);
+    function _addSupportedToken(
+        uint256 fundId,
+        Fund fund,
+        address token
+    ) internal {
+        // Get decimal places for both tokens
+        uint8 decimals = IERC20WithDecimals(token).decimals();
+        string memory name = IERC20WithDecimals(token).name();
+        string memory symbol = IERC20WithDecimals(token).symbol();
+
+        fund.addSupportedToken(token, decimals);
+
+        emit AddedSupportedToken(
+            fundId,
+            address(fund),
+            token,
+            name,
+            symbol,
+            decimals,
+            block.timestamp
+        );
     }
 
     function _checkAndReturnFund(
