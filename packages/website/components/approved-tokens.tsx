@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
-import { gql, request } from "graphql-request";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,45 +15,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWeb3 } from "@/hooks/use-web3";
-import { useReadContract } from "wagmi";
-import { parseUnits, type ContractFunctionParameters } from "viem";
+import { type ContractFunctionParameters } from "viem";
 import Orcastrator from "@/abi/Orcastrator";
 
-type SupportedToken = {
+export type SupportedToken = {
   id: string;
   token: string;
   name: string;
   symbol: string;
   decimals: number;
   timestamp: number;
-};
-
-type SupportedTokensData = {
-  supportedTokens: {
-    items: SupportedToken[];
-  };
-};
-
-const fetchSupportedTokens = async (fundId: string) => {
-  const SupportedTokensQuery = gql`
-    query SupportedTokens {
-      supportedTokens(where: { fundId: "${fundId}" }) {
-        items {
-          id
-          token
-          name
-          symbol
-          decimals
-          timestamp
-        }
-      }
-    }
-  `;
-  const data = await request<SupportedTokensData>(
-    process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069",
-    SupportedTokensQuery
-  );
-  return data;
 };
 
 interface AddTokenModalProps {
@@ -120,32 +89,15 @@ function AddTokenModal({ isOpen, onClose, fundId }: AddTokenModalProps) {
   );
 }
 
-export function ApprovedTokens({ id }: { id: string }) {
-  const { data: supportedTokens, isLoading } = useQuery({
-    queryKey: ["supportedTokens", id],
-    queryFn: () => fetchSupportedTokens(id),
-  });
+interface ApprovedTokensProps {
+  id: string;
+  supportedTokens: SupportedToken[];
+}
+
+export function ApprovedTokens({ id, supportedTokens }: ApprovedTokensProps) {
   const [isAddTokenModalOpen, setIsAddTokenModalOpen] = useState(false);
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={`skeleton-${i}`}
-              className="mb-4 flex items-center justify-between border-b pb-4 last:border-0"
-            >
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-6 w-1/4" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!supportedTokens || supportedTokens.supportedTokens.items.length === 0) {
+  if (supportedTokens.length === 0) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -180,7 +132,7 @@ export function ApprovedTokens({ id }: { id: string }) {
             Add Supported Token
           </Button>
         </div>
-        {supportedTokens.supportedTokens.items.map((token) => (
+        {supportedTokens.map((token) => (
           <div
             key={token.id}
             className="grid grid-cols-3 gap-4 border-b py-4 px-4 last:border-0"

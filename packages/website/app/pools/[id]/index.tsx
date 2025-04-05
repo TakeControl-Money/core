@@ -31,6 +31,15 @@ type Fund = {
   timestamp: number;
 };
 
+type SupportedToken = {
+  id: string;
+  token: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  timestamp: number;
+};
+
 const fetchFund = async (id: string) => {
   const OwnedFundsQuery = gql`
     query Fund {
@@ -52,11 +61,39 @@ const fetchFund = async (id: string) => {
   return data;
 };
 
+const fetchSupportedTokens = async (fundId: string) => {
+  const SupportedTokensQuery = gql`
+    query SupportedTokens {
+      supportedTokens(where: { fundId: "${fundId}" }) {
+        items {
+          id
+          token
+          name
+          symbol
+          decimals
+          timestamp
+        }
+      }
+    }
+  `;
+  const data = await request<{ supportedTokens: { items: SupportedToken[] } }>(
+    process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069",
+    SupportedTokensQuery
+  );
+  return data;
+};
+
 export default function PoolPageCode({ id }: { id: string }) {
-  const { data: fund, isLoading } = useQuery({
+  const { data: fund, isLoading: isFundLoading } = useQuery({
     queryKey: ["fund", id],
     queryFn: () => fetchFund(id),
   });
+
+  const { data: supportedTokens, isLoading: isTokensLoading } = useQuery({
+    queryKey: ["supportedTokens", id],
+    queryFn: () => fetchSupportedTokens(id),
+  });
+
   const [isInvestModalOpen, setIsInvestModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const { address } = useWeb3();
@@ -89,9 +126,7 @@ export default function PoolPageCode({ id }: { id: string }) {
     args: [],
   });
 
-  console.log(fund, isLoading);
-
-  if (isLoading) {
+  if (isFundLoading || isTokensLoading) {
     return <div>Loading...</div>;
   }
 
@@ -139,10 +174,16 @@ export default function PoolPageCode({ id }: { id: string }) {
             <PoolTransactions id={id} />
           </TabsContent>
           <TabsContent value="approved-tokens" className="mt-6">
-            <ApprovedTokens id={id} />
+            <ApprovedTokens
+              id={id}
+              supportedTokens={supportedTokens?.supportedTokens.items || []}
+            />
           </TabsContent>
           <TabsContent value="actions" className="mt-6">
-            <PoolActions id={id} />
+            <PoolActions
+              id={id}
+              supportedTokens={supportedTokens?.supportedTokens.items || []}
+            />
           </TabsContent>
         </Tabs>
       </div>

@@ -16,6 +16,7 @@ import {
 import { useWeb3 } from "@/hooks/use-web3";
 import { Loader2 } from "lucide-react";
 import { parseEther } from "viem";
+import type { SupportedToken } from "./approved-tokens";
 
 // Mock ABI for demonstration purposes
 const POOL_ABI = [
@@ -69,7 +70,12 @@ const PROTOCOL_ADDRESSES: Record<string, `0x${string}`> = {
   rocketpool: "0x7890123456789012345678901234567890123456",
 };
 
-export function PoolActions({ id }: { id: string }) {
+interface PoolActionsProps {
+  id: string;
+  supportedTokens: SupportedToken[];
+}
+
+export function PoolActions({ id, supportedTokens }: PoolActionsProps) {
   const {
     isConnected,
     connect,
@@ -98,7 +104,7 @@ export function PoolActions({ id }: { id: string }) {
       if (!amount || !selectedToken || !selectedProtocol) return;
 
       const amountInWei = parseEther(amount);
-      const tokenAddress = TOKEN_ADDRESSES[selectedToken];
+      const tokenAddress = selectedToken as `0x${string}`;
       const protocolAddress = PROTOCOL_ADDRESSES[selectedProtocol];
 
       let functionName: string;
@@ -107,7 +113,7 @@ export function PoolActions({ id }: { id: string }) {
       switch (action) {
         case "swap":
           functionName = "swap";
-          args = [amountInWei, tokenAddress, TOKEN_ADDRESSES[selectedProtocol]];
+          args = [amountInWei, tokenAddress, selectedProtocol as `0x${string}`];
           break;
         case "lend":
           functionName = "lend";
@@ -211,9 +217,11 @@ export function PoolActions({ id }: { id: string }) {
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="usdc">USDC</SelectItem>
-                  <SelectItem value="eth">ETH</SelectItem>
-                  <SelectItem value="wbtc">WBTC</SelectItem>
+                  {supportedTokens.map((token) => (
+                    <SelectItem key={token.id} value={token.token}>
+                      {token.symbol}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -228,9 +236,11 @@ export function PoolActions({ id }: { id: string }) {
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="eth">ETH</SelectItem>
-                  <SelectItem value="wbtc">WBTC</SelectItem>
-                  <SelectItem value="usdc">USDC</SelectItem>
+                  {supportedTokens.map((token) => (
+                    <SelectItem key={token.id} value={token.token}>
+                      {token.symbol}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -278,9 +288,11 @@ export function PoolActions({ id }: { id: string }) {
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="usdc">USDC</SelectItem>
-                  <SelectItem value="eth">ETH</SelectItem>
-                  <SelectItem value="wbtc">WBTC</SelectItem>
+                  {supportedTokens.map((token) => (
+                    <SelectItem key={token.id} value={token.token}>
+                      {token.symbol}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -344,8 +356,11 @@ export function PoolActions({ id }: { id: string }) {
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="eth">ETH</SelectItem>
-                  <SelectItem value="matic">MATIC</SelectItem>
+                  {supportedTokens.map((token) => (
+                    <SelectItem key={token.id} value={token.token}>
+                      {token.symbol}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
