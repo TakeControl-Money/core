@@ -6,6 +6,7 @@ export const fund = onchainTable("fund", (t) => ({
   name: t.text().notNull(),
   symbol: t.text().notNull(),
   details: t.jsonb().default({}).notNull(),
+  owner: t.text().notNull(),
   timestamp: t.integer().notNull(),
 }));
 

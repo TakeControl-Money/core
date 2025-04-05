@@ -7,7 +7,7 @@ ponder.on("Orcastrator:FundCreated", async ({ event, context }) => {
     fundAddress: event.args.fundAddress,
     name: event.args.name,
     symbol: event.args.symbol,
-    detailsJson: event.args.detailsJson,
+    details: event.args.detailsJson,
     owner: event.args.owner,
     timestamp: Number(event.block.timestamp),
   });
