@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 import {IERC20WithDecimals, IERC20} from "./interfaces/IERC20WithDecimals.sol";
-import {IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/IUniswap.sol";
+import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/IUniswap.sol";
 import {IOrcastrator} from "./interfaces/IOrcastrator.sol";
 
 import "./ShareToken.sol";
@@ -26,6 +26,7 @@ contract Fund {
     IUniswapV2Factory public uniswapFactory;
     ShareToken public shareToken;
     IOrcastrator public orcastrator;
+    IUniswapV2Router public uniswapRouter;
 
     modifier onlyOrcastrator() {
         require(
@@ -40,6 +41,7 @@ contract Fund {
         string memory _symbol,
         address _usdcAddress,
         address _uniswapFactoryAddress,
+        address _uniswapRouterAddress,
         address _orcastratorAddress
     ) {
         USDCAddress = _usdcAddress;
@@ -48,6 +50,7 @@ contract Fund {
         // deploy share token
         shareToken = new ShareToken(_name, _symbol);
         orcastrator = IOrcastrator(_orcastratorAddress);
+        uniswapRouter = IUniswapV2Router(_uniswapRouterAddress);
     }
 
     // Deposit USDC into the fund
@@ -109,13 +112,11 @@ contract Fund {
     // calculate total value of the fund
     function calculateTotalValue() public view returns (uint256) {
         uint256 totalValue = 0;
-        Token memory usdcToken = tokensHeld[1];
-        totalValue +=
-            (usdcToken.balance * PRECISION) /
-            (10 ** usdcToken.decimals);
-        for (uint256 i = 2; i <= totalTokenIds; i++) {
+        for (uint256 i = 1; i <= totalTokenIds; i++) {
             Token memory token = tokensHeld[i];
-            totalValue += token.balance * getTokenPrice(token.tokenAddress);
+            totalValue +=
+                (token.balance * getTokenPrice(token.tokenAddress)) /
+                (10 ** token.decimals);
         }
         return totalValue;
     }
@@ -124,6 +125,10 @@ contract Fund {
     function getTokenPrice(
         address tokenAddress
     ) public view returns (uint256 price) {
+        if (tokenAddress == USDCAddress) {
+            return PRECISION;
+        }
+
         // check if token is supported
         require(tokenIdByAddress[tokenAddress] != 0, "Token not supported");
 
@@ -183,12 +188,56 @@ contract Fund {
         Token memory tokenOutToken = tokensHeld[tokenIdByAddress[tokenOut]];
         Token memory tokenInToken = tokensHeld[tokenIdByAddress[tokenIn]];
 
-        // check if tokenIn has enough balance
+        // check if tokenOut has enough balance
         require(tokenOutToken.balance >= amount, "Insufficient balance");
 
-        // swap logic
+        // Calculate minimum amount out using getTokenPrice
+        uint256 tokenOutPrice = getTokenPrice(tokenOut);
+        uint256 tokenInPrice = getTokenPrice(tokenIn);
 
-        amountIn = 0;
+        // Calculate expected output amount
+        // Adjust for decimals difference between tokens
+        uint256 expectedOutput;
+        if (tokenOutToken.decimals >= tokenInToken.decimals) {
+            uint256 decimalsDiff = 10 **
+                (tokenOutToken.decimals - tokenInToken.decimals);
+            expectedOutput =
+                (amount * tokenOutPrice * decimalsDiff) /
+                tokenInPrice;
+        } else {
+            uint256 decimalsDiff = 10 **
+                (tokenInToken.decimals - tokenOutToken.decimals);
+            expectedOutput =
+                (amount * tokenOutPrice) /
+                (tokenInPrice * decimalsDiff);
+        }
+
+        // Set minimum output to 95% of expected output (5% slippage)
+        uint256 amountOutMin = (expectedOutput * 95) / 100;
+
+        // Create the path for the swap
+        address[] memory path = new address[](2);
+        path[0] = tokenOut;
+        path[1] = tokenIn;
+
+        // Approve router to spend tokenOut
+        IERC20(tokenOut).approve(routerAddress, amount);
+
+        // Perform the swap
+        uint256[] memory amounts = IUniswapV2Router(routerAddress)
+            .swapExactTokensForTokens(
+                amount,
+                amountOutMin,
+                path,
+                address(this),
+                block.timestamp + 300 // 5 minutes deadline
+            );
+
+        // Update token balances
+        tokensHeld[tokenIdByAddress[tokenOut]].balance -= amount;
+        tokensHeld[tokenIdByAddress[tokenIn]].balance += amounts[1];
+
+        return amounts[1];
     }
 
     function addSupportedToken(
