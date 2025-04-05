@@ -42,5 +42,8 @@ export const supportedToken = onchainTable("supportedToken", (t) => ({
   id: t.text().primaryKey(),
   fundId: t.bigint().notNull(),
   token: t.text().notNull(),
+  name: t.text().notNull(),
+  symbol: t.text().notNull(),
+  decimals: t.integer().notNull(),
   timestamp: t.integer().notNull(),
 }));

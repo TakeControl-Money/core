@@ -52,6 +52,9 @@ ponder.on("Orcastrator:AddedSupportedToken", async ({ event, context }) => {
     id: event.id,
     fundId: event.args.fundId,
     token: event.args.token,
+    name: event.args.name,
+    symbol: event.args.symbol,
+    decimals: event.args.decimals,
     timestamp: Number(event.block.timestamp),
   });
 });
