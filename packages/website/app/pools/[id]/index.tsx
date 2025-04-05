@@ -16,6 +16,7 @@ import ERC20 from "@/abi/ERC20";
 import { useWeb3 } from "@/hooks/use-web3";
 import { formatUnits } from "viem";
 import { testMultiplier } from "@/lib/utils";
+import { ApprovedTokens } from "@/components/approved-tokens";
 
 type Fund = {
   id: string;
@@ -44,7 +45,7 @@ const fetchFund = async (id: string) => {
       }
     }
   `;
-  const data = await request<{ fund: Fund }>(
+  const data = await request<{ fund: Fund | null }>(
     process.env.NEXT_PUBLIC_PONDER_URL || "http://localhost:42069",
     OwnedFundsQuery
   );
@@ -62,14 +63,14 @@ export default function PoolPageCode({ id }: { id: string }) {
 
   const { data: tvl, refetch: refetchTvl } = useReadContract({
     abi: FundAbi.abi,
-    address: fund?.fund.fundAddress as `0x${string}`,
+    address: fund?.fund?.fundAddress as `0x${string}`,
     functionName: "calculateTotalValue",
     args: [],
   });
 
   const { data: shareTokenAddress } = useReadContract({
     abi: FundAbi.abi,
-    address: fund?.fund.fundAddress as `0x${string}`,
+    address: fund?.fund?.fundAddress as `0x${string}`,
     functionName: "shareToken",
     args: [],
   });
@@ -90,8 +91,12 @@ export default function PoolPageCode({ id }: { id: string }) {
 
   console.log(fund, isLoading);
 
-  if (isLoading || !fund) {
+  if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!fund || !fund.fund) {
+    return <div>Fund not found</div>;
   }
 
   return (
@@ -124,7 +129,7 @@ export default function PoolPageCode({ id }: { id: string }) {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="assets">Assets</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="investors">Investors</TabsTrigger>
+            <TabsTrigger value="approved-tokens">Approved Tokens</TabsTrigger>
             <TabsTrigger value="actions">Actions</TabsTrigger>
           </TabsList>
           <TabsContent value="assets" className="mt-6">
@@ -133,11 +138,8 @@ export default function PoolPageCode({ id }: { id: string }) {
           <TabsContent value="transactions" className="mt-6">
             <PoolTransactions id={id} />
           </TabsContent>
-          <TabsContent value="investors" className="mt-6">
-            <div className="rounded-lg border p-6">
-              <h3 className="mb-4 text-xl font-medium">Pool Investors</h3>
-              {/* Investor list component would go here */}
-            </div>
+          <TabsContent value="approved-tokens" className="mt-6">
+            <ApprovedTokens id={id} />
           </TabsContent>
           <TabsContent value="actions" className="mt-6">
             <PoolActions id={id} />
