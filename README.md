@@ -28,7 +28,7 @@ The application leverages Base blockchain technology to provide transparency, se
 
 ### Core Components
 
-- **ConnectWallet**: Handles wallet connection with Coinbase Wallet integration
+- **ConnectWallet**: Handles wallet connection with Coinbase Smart Wallet integration with Coinbase Paymaster 
 - **CreatePoolForm**: Form for creating new investment pools with options for different manager types (human, smart contract, AI)
 - **PoolList**: Displays available pools with filtering options
 - **PoolActions**: Interface for executing transactions like swapping, lending, and staking within a pool
@@ -49,26 +49,13 @@ The application leverages Base blockchain technology to provide transparency, se
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd takecontrol.money/webapp
+   git clone git@github.com:TakeControl-Money/core.git takecontrol.money
+   cd takecontrol.money
    ```
 
 2. **Install dependencies**
    ```bash
    bun install
-   ```
-
-3. **Set up environment variables**
-   Create a `.env.local` file from `.env.example`
-
-4. **Run the development server**
-   ```bash
-   bun dev
-   ```
-
-5. **Build for production**
-   ```bash
-   bun build
    ```
 
 ## Usage Instructions
@@ -103,7 +90,8 @@ As a pool manager:
 ## Features
 
 - **Base Chain Integration**: Built on Coinbase's Base L2 for low fees and fast transactions
-- **Smart Wallet Integration**: Connect with Coinbase Wallet for secure transactions
+- **Smart Wallet Integration**: Connect with Coinbase Smart Wallet for secure transactions
+- **Completely Gasless Experience**: With Coinbase Paymaster, we are able to provide completely gasless experience
 - **Pool Creation**: Create customizable investment pools with different manager types
 - **Asset Management**: Swap, lend, and stake assets within pools
 - **Performance Tracking**: Monitor pool performance with detailed analytics
