@@ -5,9 +5,17 @@ import { PoolStats } from "@/components/pool-stats";
 import { PoolActions } from "@/components/pool-actions";
 import { PoolTransactions } from "@/components/pool-transactions";
 import { PoolAssets } from "@/components/pool-assets";
+import { InvestModal } from "@/components/invest-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { request, gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useReadContract } from "wagmi";
+import FundAbi from "@/abi/Fund";
+import ERC20 from "@/abi/ERC20";
+import { useWeb3 } from "@/hooks/use-web3";
+import { formatUnits } from "viem";
+import { testMultiplier } from "@/lib/utils";
 
 type Fund = {
   id: string;
@@ -48,6 +56,37 @@ export default function PoolPageCode({ id }: { id: string }) {
     queryKey: ["fund", id],
     queryFn: () => fetchFund(id),
   });
+  const [isInvestModalOpen, setIsInvestModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const { address } = useWeb3();
+
+  const { data: tvl, refetch: refetchTvl } = useReadContract({
+    abi: FundAbi.abi,
+    address: fund?.fund.fundAddress as `0x${string}`,
+    functionName: "calculateTotalValue",
+    args: [],
+  });
+
+  const { data: shareTokenAddress } = useReadContract({
+    abi: FundAbi.abi,
+    address: fund?.fund.fundAddress as `0x${string}`,
+    functionName: "shareToken",
+    args: [],
+  });
+
+  const { data: userShares } = useReadContract({
+    abi: ERC20.abi,
+    address: shareTokenAddress,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+  });
+
+  const { data: totalShares } = useReadContract({
+    abi: ERC20.abi,
+    address: shareTokenAddress,
+    functionName: "totalSupply",
+    args: [],
+  });
 
   console.log(fund, isLoading);
 
@@ -63,8 +102,23 @@ export default function PoolPageCode({ id }: { id: string }) {
         timestamp={fund.fund.timestamp}
         managerType={fund.fund.details.managerType}
         description={fund.fund.details.description}
+        onInvestClick={() => setIsInvestModalOpen(true)}
+        userShares={userShares ? formatUnits(userShares, 18) : "0"}
+        sharesWorth={
+          totalShares && userShares && tvl
+            ? (
+                Number(formatUnits((tvl * userShares) / totalShares, 18)) *
+                testMultiplier
+              ).toString()
+            : "0"
+        }
+        onWithdrawClick={() => setIsWithdrawModalOpen(true)}
       />
-      <PoolStats id={id} />
+      <PoolStats
+        id={id}
+        address={fund.fund.fundAddress}
+        refetchTvl={refetchTvl}
+      />
       <div className="mt-8">
         <Tabs defaultValue="assets">
           <TabsList className="grid w-full grid-cols-4">
@@ -90,6 +144,12 @@ export default function PoolPageCode({ id }: { id: string }) {
           </TabsContent>
         </Tabs>
       </div>
+      <InvestModal
+        isOpen={isInvestModalOpen}
+        onClose={() => setIsInvestModalOpen(false)}
+        fundAddress={fund.fund.fundAddress}
+        fundId={id}
+      />
     </div>
   );
 }
